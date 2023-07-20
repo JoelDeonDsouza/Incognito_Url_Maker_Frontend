@@ -1,9 +1,14 @@
 import React from 'react';
+// Components //
+import { Nav, Main, Footer } from "./Components"
+
 
 function App() {
   return (
     <div className="App">
-      <h1>Hello World</h1>
+      <Nav />
+      <Main />
+      <Footer />
     </div>
   );
 }
