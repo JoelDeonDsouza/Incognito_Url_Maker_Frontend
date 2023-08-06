@@ -35,7 +35,7 @@ describe('Main Component', () => {
         const aliasInput = screen.getByPlaceholderText('Enter alias *');
         const shortenButton = screen.getByText('Shorten URL');
         fireEvent.change(originUrlInput, { target: { value: 'invalid-url' } });
-        fireEvent.change(aliasInput, { target: { value: 'abc' } });
+        fireEvent.change(aliasInput, { target: { value: 'testcall' } });
         fireEvent.click(shortenButton);
         expect(screen.getByTestId('err-message')).toHaveTextContent('Enter a valid URL');
     });
@@ -46,7 +46,7 @@ describe('Main Component', () => {
         const aliasInput = screen.getByPlaceholderText('Enter alias *');
         const shortenButton = screen.getByText('Shorten URL');
         fireEvent.change(originUrlInput, { target: { value: 'https://www.google.com/' } });
-        fireEvent.change(aliasInput, { target: { value: 'abc' } });
+        fireEvent.change(aliasInput, { target: { value: 'test' } });
         fireEvent.click(shortenButton);
         expect(screen.getByTestId('err-message')).toHaveTextContent('Alias should be at least 5 characters long');
     });
