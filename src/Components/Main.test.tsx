@@ -1,30 +1,46 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Main from './Main';
 import '@testing-library/jest-dom/extend-expect';
+import axios from 'axios';
+// Component //
+import Main from './Main';
 
-test('Displays error message when form is submitted with empty fields', () => {
-    render(<Main />);
-    const shortenButton = screen.getByText('Shorten URL');
-    fireEvent.click(shortenButton);
-    const errorMessage = screen.getByText((content, element) => {
-        return content === 'Please fill in the form';
+// Mock axios.post //
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
+mockedAxios.post.mockResolvedValue({ data: { maskedUrl: 'http://localhost:6000/' } });
+
+describe('Main Component', () => {
+    beforeEach(() => {
+        mockedAxios.post.mockClear();
     });
-    expect(errorMessage).toBeInTheDocument();
-});
 
-test('Displays error message when origin URL is invalid', () => {
-    render(<Main />);
-    const shortenButton = screen.getByText('Shorten URL');
-    fireEvent.click(shortenButton);
-    const errMessage = screen.getByTestId('err-message');
-    expect(errMessage).toBeInTheDocument();
-});
+    it('should render the main form and show error when form is submitted with invalid input or empty', () => {
+        render(<Main />);
+        const shortenButton = screen.getByText('Shorten URL');
+        fireEvent.click(shortenButton);
+        expect(screen.getByTestId('err-message')).toHaveTextContent('Please fill in the form');
+    });
 
-test('Displays error message when alias is too short', () => {
-    render(<Main />);
-    const shortenButton = screen.getByText('Shorten URL');
-    fireEvent.click(shortenButton);
-    const errMessage = screen.getByTestId('err-alias');
-    expect(errMessage).toBeInTheDocument();
+    it('should render the main form and show error when invalid URL is entered', () => {
+        render(<Main />);
+        const originUrlInput = screen.getByPlaceholderText('Enter long link here *');
+        const aliasInput = screen.getByPlaceholderText('Enter alias *');
+        const shortenButton = screen.getByText('Shorten URL');
+        fireEvent.change(originUrlInput, { target: { value: 'invalid-url' } });
+        fireEvent.change(aliasInput, { target: { value: 'testcall' } });
+        fireEvent.click(shortenButton);
+        expect(screen.getByTestId('err-message')).toHaveTextContent('Enter a valid URL');
+    });
+
+    it('should render the main form and show error when alias is too short', () => {
+        render(<Main />);
+        const originUrlInput = screen.getByPlaceholderText('Enter long link here *');
+        const aliasInput = screen.getByPlaceholderText('Enter alias *');
+        const shortenButton = screen.getByText('Shorten URL');
+        fireEvent.change(originUrlInput, { target: { value: 'https://www.google.com/' } });
+        fireEvent.change(aliasInput, { target: { value: 'test' } });
+        fireEvent.click(shortenButton);
+        expect(screen.getByTestId('err-message')).toHaveTextContent('Alias should be at least 5 characters long');
+    });
 });
